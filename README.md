@@ -8,14 +8,20 @@
 </p>
 
 <p align="center">
+
+[📖 Documentation][docs]
+
 Chain-bench is an open-source tool for auditing your software supply chain stack for security compliance based on a new 
-  <a href="https://workbench.cisecurity.org/communities/142">CIS Software Supply Chain benchmark</a>.
+  <a href="docs/CIS-Software-Supply-Chain-Security-Guide-v1.0.pdf">CIS Software Supply Chain benchmark</a>.
 The auditing focuses on the entire SDLC process, where it can reveal risks from code time into deploy time. To win the race against hackers and protect your sensitive data and customer trust, you need to ensure your code is compliant with your organization’s policies.
+
+Read more in the [Chain-bench Documentation][docs]
 </p>
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/aquasecurity/chain-bench.svg?style=flat-square)](https://pkg.go.dev/github.com/aquasecurity/chain-bench)
 [![GitHub Release][release-img]][release]
 [![Downloads][download]][release]
+[![DockerHub Pulls][docker-pull-img]][docker-pull]
 [![Build Status](https://github.com/aquasecurity/chain-bench/workflows/Build/badge.svg?branch=main&style=flat-square)](https://github.com/aquasecurity/chain-bench/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://github.com/aquasecurity/chain-bench/blob/main/LICENSE)
 [![go-report-card][go-report-card]](https://goreportcard.com/report/github.com/aquasecurity/chain-bench)
@@ -25,10 +31,12 @@ The auditing focuses on the entire SDLC process, where it can reveal risks from 
 [download]: https://img.shields.io/github/downloads/aquasecurity/chain-bench/total?logo=github&style=flat-square
 [release-img]: https://img.shields.io/github/release/aquasecurity/chain-bench.svg?logo=github&style=flat-square
 [release]: https://github.com/aquasecurity/chain-bench/releases
+[docker-pull]: https://cloud.docker.com/repository/docker/aquasec/chain-bench
+[docker-pull-img]: https://img.shields.io/docker/pulls/aquasec/chain-bench.svg
 [go-report-card]: https://goreportcard.com/badge/github.com/aquasecurity/chain-bench?style=flat-square
 
 <figure style="text-align: center">
-  <img src="docs/imgs/demo.gif" width="1000" alt="Vulnerability Detection">
+  <img src="docs/imgs/demo.gif" alt="demo">
 </figure>
 
 # Contents
@@ -38,6 +46,7 @@ The auditing focuses on the entire SDLC process, where it can reveal risks from 
 - [Quick start](#quick-start)
   - [Usage](#usage)
     - [Using docker](#using-docker)
+    - [Using GitHub Actions](#using-github-actions)
 - [Requirements](#requirements)
 - [Supported Providers](#supported-providers)
 - [Please Note](#please-note)
@@ -46,16 +55,25 @@ The auditing focuses on the entire SDLC process, where it can reveal risks from 
 
 # Introduction
 
-Chain-bench is an open-source tool for auditing your software supply chain stack for security compliance based on a new [CIS Software Supply Chain benchmark](https://workbench.cisecurity.org/communities/142).
-The auditing focuses on the entire SDLC process, where it can reveal risks from code time into deploy time. To
+Chain-bench is an open-source tool for auditing your software supply chain stack for security compliance based on a new [CIS Software Supply Chain benchmark](/docs/CIS-Software-Supply-Chain-Security-Guide-v1.0.pdf).
+The auditing focuses on the entire SDLC process, where it can reveal risks from code time into deploy time.
 
 # Quick start
 
-There is a primarily way to run chain-bench as a stand alone cli, that requires the personal access token of your account and the repository url in order to access your SCM.
+The primary way to run chain-bench is as a standalone cli. It requires an access token for your account and the repository url in order to access your SCM.
+
+## Installation
+
+Get Chain-bench via your favorite installation method. See [installation] section in the documentation for details. For example:
+
+- `brew install chain-bench`
+- `nix-env --install -A nixpkgs.chain-bench`
+- `docker run aquasec/chain-bench`
+- Download binary from https://github.com/aquasecurity/chain-bench/releases/latest/
 
 ## Usage
 
-```
+```bash
 chain-bench scan --repository-url <REPOSITORY_URL> --access-token <TOKEN> -o <OUTPUT_PATH>
 ```
 
@@ -64,6 +82,10 @@ chain-bench scan --repository-url <REPOSITORY_URL> --access-token <TOKEN> -o <OU
 ```bash
 docker run aquasec/chain-bench scan --repository-url <REPOSITORY_URL> --access-token <TOKEN>
 ```
+
+### Using GitHub Actions
+
+See the repository at https://github.com/aquasecurity/chain-bench-action
 
 <details>
 <summary>Example output</summary>
@@ -144,3 +166,10 @@ We welcome PRs and issue reports.
 
 Going forward we plan to release updates to chain-bench to increase the benchmark coverage with more checks and support more platforms.
 chain-bench is an Aqua Security open source project part of Trivy Family.
+
+[docs]: https://github.com/aquasecurity/chain-bench/blob/main/docs/
+[installation]: https://github.com/aquasecurity/chain-bench/blob/main/docs/getting-started/installation.md
+<!-- TODO: swap to GH pages
+[docs]: https://aquasecurity.github.io/chain-bench
+[installation]: https://aquasecurity.github.io/chain-bench/latest/docs/getting-started/installation/
+-->

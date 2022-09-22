@@ -2,10 +2,12 @@ package main
 
 import data.common.consts as constsLib
 import data.common.permissions as permissionslib
+import data.generic.utils as utilsLib
 import future.keywords.in
 
 # for repository without branch protection setting
 is_no_branch_protection {
+	permissionslib.is_repo_admin
 	input.BranchProtections == null
 }
 
@@ -30,6 +32,10 @@ is_branch_protection_not_requires_dismissal_restrictions {
 	input.BranchProtections.RequiredPullRequestReviews.DismissalRestrictions == null
 }
 
+is_required_pull_request_reviews_disabled {
+	input.BranchProtections.RequiredPullRequestReviews == null
+}
+
 is_branch_protection_not_requires_conversation_resolution {
 	input.BranchProtections.RequiredConversationResolution == false
 }
@@ -40,12 +46,6 @@ is_branch_protection_not_requires_signed_commits {
 
 is_branch_protection_not_enforced_on_admins {
 	input.BranchProtections.EnforceAdmins.Enabled == false
-}
-
-is_admin {
-	some i in input.Repository.Collaborators
-	i.id == input.AuthorizedUser.id
-	i.permissions.admin == true
 }
 
 is_branch_protection_restrict_force_push {
@@ -95,14 +95,29 @@ is_repository_prevent_rebase_and_squash_merge {
 	input.Repository.AllowSquashMerge == false
 }
 
+#couldnt get repository data
+CbPolicy[msg] {
+	utilsLib.is_repository_data_missing
+	msg := {"ids": ["1.1.3", "1.1.4", "1.1.5", "1.1.6", "1.1.8", "1.1.9", "1.1.10", "1.1.11", "1.1.12", "1.1.13", "1.1.14", "1.1.15", "1.1.16", "1.1.17"], "status": constsLib.status.Unknown, "details": constsLib.details.repository_data_is_missing}
+}
+
 #missing permissions
 CbPolicy[msg] {
+	not utilsLib.is_repository_data_missing
 	permissionslib.is_missing_repo_settings_permission
-	msg := {"ids": ["1.1.3", "1.1.4", "1.1.5", "1.1.6", "1.1.9", "1.1.10", "1.1.11", "1.1.12", "1.1.13", "1.1.14", "1.1.15", "1.1.16", "1.1.17"], "status": constsLib.status.Unknown}
+	msg := {"ids": ["1.1.3", "1.1.4", "1.1.5", "1.1.6", "1.1.9", "1.1.10", "1.1.11", "1.1.12", "1.1.13", "1.1.14", "1.1.15", "1.1.16", "1.1.17"], "status": constsLib.status.Unknown, "details": constsLib.details.repository_missing_minimal_permissions}
+}
+
+#Missing minimal permission for branch protection settings
+CbPolicy[msg] {
+	input.Repository.Collaborators != null
+	not permissionslib.is_repo_admin
+	msg := {"ids": ["1.1.3", "1.1.4", "1.1.5", "1.1.6", "1.1.9", "1.1.10", "1.1.11", "1.1.12", "1.1.14", "1.1.15", "1.1.16", "1.1.17"], "status": constsLib.status.Unknown, "details": constsLib.details.repository_missing_minimal_permissions_for_branch_protection}
 }
 
 #Missing branch protection settings
 CbPolicy[msg] {
+	not utilsLib.is_repository_data_missing
 	not permissionslib.is_missing_repo_settings_permission
 	is_no_branch_protection
 	msg := {"ids": ["1.1.3", "1.1.4", "1.1.5", "1.1.6", "1.1.9", "1.1.10", "1.1.11", "1.1.12", "1.1.14", "1.1.15", "1.1.16", "1.1.17"], "status": constsLib.status.Failed}
@@ -114,9 +129,8 @@ CbPolicy[msg] {
 }
 
 CbPolicy[msg] {
-	input.Repository.Collaborators != null
-	not is_admin
-	msg := {"ids": ["1.1.5"], "status": constsLib.status.Unknown}
+	is_required_pull_request_reviews_disabled
+	msg := {"ids": ["1.1.3", "1.1.4", "1.1.5", "1.1.6"], "status": constsLib.status.Failed}
 }
 
 CbPolicy[msg] {
@@ -135,7 +149,6 @@ CbPolicy[msg] {
 #Looking for default branch protection that doesn't require dismissal rules
 CbPolicy[msg] {
 	not is_no_branch_protection
-	is_admin
 	is_branch_protection_not_requires_dismissal_restrictions
 	msg := {"ids": ["1.1.5"], "status": constsLib.status.Failed}
 }
@@ -148,6 +161,7 @@ CbPolicy[msg] {
 
 #Looking for inactive branches
 CbPolicy[msg] {
+	not utilsLib.is_repository_data_missing
 	inactiveCount := is_inactive_branches[i]
 	details := sprintf("%v %v", [format_int(inactiveCount, 10), "inactive branches"])
 	msg := {"ids": ["1.1.8"], "status": constsLib.status.Failed, "details": details}
