@@ -19,8 +19,8 @@ func NewScanCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			start := time.Now()
 			logger.Infof("%v	Fetch Starting", emoji.TriangularFlag)
-			assetsData, err := clients.FetchClientData(accessToken, repositoryUrl, branch)
-			if err != nil {
+			assetsData, supportedChecks, err := clients.FetchClientData(accessToken, repositoryUrl, scmPlatform, branch)
+			if assetsData.AuthorizedUser == nil || err != nil {
 				logger.Error(err, "Failed to fetch client data")
 				return err
 			} else {
@@ -30,7 +30,7 @@ func NewScanCommand() *cobra.Command {
 			checks := checks.GetChecks(assetsData)
 			results, errors := checker.RunChecks(assetsData, chainbenchConfig, checks)
 
-			printer.PrintFindings(results, outputFilePath, isQuiet, repositoryUrl)
+			printer.PrintFindings(results, supportedChecks, outputFilePath, isQuiet, repositoryUrl, outputTemplateFilePath)
 			printer.PrintErrors(errors)
 			elapsed := time.Since(start)
 			logger.Infof("Scan completed: %s", elapsed.Round(time.Millisecond))
@@ -46,9 +46,13 @@ func NewScanCommand() *cobra.Command {
 		accessTokenFlagName, accessTokenShortFlag, "",
 		"the access token to use for the repository")
 
+	scanCommand.PersistentFlags().StringVarP(&scmPlatform,
+		scmPlatformFlagName, scmPlatformShortFlag, "",
+		"the SCM platform for self-hosted/dedicated environments (options: 'github', 'gitlab')")
+
 	scanCommand.PersistentFlags().StringVarP(&branch,
 		branchFlagName, branchShortFlag, "",
-		"the branch to scan branch protection for")
+		"the branch to scan for branch protection")
 
 	return scanCommand
 }

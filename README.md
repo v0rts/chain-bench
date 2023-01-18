@@ -44,9 +44,11 @@ Read more in the [Chain-bench Documentation][docs]
 - [Contents](#contents)
 - [Introduction](#introduction)
 - [Quick start](#quick-start)
+  - [Installation](#installation)
   - [Usage](#usage)
     - [Using docker](#using-docker)
     - [Using GitHub Actions](#using-github-actions)
+    - [Using Gitlab CI (beta)](#using-gitlab-ci-beta)
 - [Requirements](#requirements)
 - [Supported Providers](#supported-providers)
 - [Please Note](#please-note)
@@ -76,6 +78,14 @@ Get Chain-bench via your favorite installation method. See [installation] sectio
 ```bash
 chain-bench scan --repository-url <REPOSITORY_URL> --access-token <TOKEN> -o <OUTPUT_PATH>
 ```
+
+### Using Self-hosted or Dedicated SCM Platforms (with custom domains)
+
+```bash
+chain-bench scan --repository-url <REPOSITORY_URL> --scm-platform <SCM_PLATFORM> --access-token <TOKEN> -o <OUTPUT_PATH>
+```
+
+Supported options for `scm-platform` are `"github"` and `"gitlab"` (beta)
 
 ### Using docker
 
@@ -140,8 +150,26 @@ See the repository at https://github.com/aquasecurity/chain-bench-action
  Total Passed Rules: 19 out of 36
 2022-06-13 15:22:31 INF Scan completed: 13.108s
 ```
-
 </details>
+
+
+### Using Gitlab CI (beta)
+
+You can integrated chain-bench results into [Gitlab Vulnrability Report](https://docs.gitlab.com/ee/user/application_security/vulnerability_report/) by adding a new step within your CI defintion:
+```
+chain-bench-scanning:
+  stage: test
+  image:
+    name: docker.io/aquasec/chain-bench
+    entrypoint: [""]
+  script:
+    - chain-bench scan --repository-url $CI_PROJECT_URL --access-token $CHAIN_BENCH_TOKEN --scm-platform gitlab -o results.json --template @/templates/gitlab_security_scanner.tpl
+  artifacts:
+    reports:
+      container_scanning: results.json
+```
+* You have to create new [token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html) with `Maintainer` role that has `read_api` & `read_repository` permission and use it as environment variables (eg.$CHAIN_BENCH_TOKEN)
+
 
 # Requirements
 
@@ -149,7 +177,7 @@ It is required to provide an access token with permission to these scopes: `repo
 
 # Supported Providers
 
-We currently support Github as the first SCM, with PAT authentication.
+We currently support Github and Gitlab SCMs, with PAT authentication.
 
 # Please Note
 

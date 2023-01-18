@@ -12,6 +12,10 @@ var (
 	outputFilePathFlagName  = "output-file"
 	outputFilePathShortFlag = "o"
 
+	// outputFilePath if provided, output will be appended to a file
+	outputTemplateFilePath         string
+	outputTemplateFilePathFlagName = "template"
+
 	// logFilePath if provided, logs will be appended to a file
 	logFilePath          string
 	logFilePathFlagName  = "log-file"
@@ -43,10 +47,15 @@ var (
 	repositoryUrlFlagName  = "repository-url"
 	repositoryUrlShortFlag = "r"
 
-	// repositoryUrl the path to the repository to scan
+	// accessToken the access token to use for the repository
 	accessToken          string
 	accessTokenFlagName  = "access-token"
 	accessTokenShortFlag = "t"
+
+	// SCM platform for self-hosted/dedicated environments
+	scmPlatform          string
+	scmPlatformFlagName  = "scm-platform"
+	scmPlatformShortFlag = "s"
 
 	// branch the branch name to scan
 	branch          string
